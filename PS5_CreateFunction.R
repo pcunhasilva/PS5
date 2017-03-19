@@ -21,7 +21,7 @@
 #' @import stats
 #' @export
 FitStatistics <- function(y, P, r = NULL, 
-                          statistics = c("MR", "mad", "mape", "meape", "rmsle", "mrae")){
+                          statistics = c("rmse", "mad", "mape", "meape", "rmsle", "mrae")){
    # If y=0, it adds a small number to not generate Inf in the next 
    #  in the next steps.
    y[y==0 & !is.na(y)] <- y[y==0 & !is.na(y)]+0.01

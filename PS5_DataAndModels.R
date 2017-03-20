@@ -4,16 +4,20 @@
 ## Author: Patrick Cunha Silva
 ## Tasks: 1 - Import dataset
 ##        2 - Clean and recode data
-##        3 - Estimate the models and generate the predict values.
-
+##        3 - Estimate the models and generate the predicted values.
+##        4 - Generate a vector with naive predictions
+##        5 - Calculate the Fit Statistics
 
 rm(list = ls())
+
+# Define WD
 setwd("~/Google Drive/2. Academicos/6. Doutorado/Class/2017/Spring/PS 5625 - Applied Statistical Programming/Homeworks/Problem Sets/PS5/")
 
 # Load the libraries
 library(randomForest)
 library(foreign)
 library(AER)
+library(FitStatisticsPack)
 
 # Import dataset
 anesTS2012 <- read.dta("anes_timeseries_2012_stata12.dta")
@@ -71,17 +75,16 @@ for(i in sort(unique(anesTS2012sub$education))){
    anesTS2012sub$education[anesTS2012sub$education==as.numeric(i)] <- j
    j <- j+1
 }
-# Remove the vector j
-rm(j)
 
 # Obama Thermometer
 anesTS2012sub$obamather <- ifelse(anesTS2012sub$ft_dpc>=0, anesTS2012sub$ft_dpc, NA)
 
+# Remove the vectors j, i, and keep_var.
+rm(j, i, keep_var)
 
 # Split the sample
 training_set <- row.names(anesTS2012sub) %in% sample(1:nrow(anesTS2012sub),
                                                      nrow(anesTS2012sub)/2, replace = FALSE)
-
 # Estimate the models
 # OLS
 model_OLS <- lm(obamather ~ female + pres_blamed + unemployment + white + education
@@ -93,8 +96,36 @@ model_Tobit <- tobit(obamather ~ female + pres_blamed + unemployment + white + e
 model_RM <- randomForest(obamather ~ female + pres_blamed + unemployment + white + education
                          + lcscale, data = na.omit(anesTS2012sub[training_set,]), trees = 1000)
 
-# Generate the predict values and add them into a matrix
+# Generate the predicted values
+# OLS
 predOLS <- predict(model_OLS, newdata = anesTS2012sub[!training_set,], type="response")
+# Tobit
 predTobit <- predict(model_Tobit, newdata = anesTS2012sub[!training_set,], type="response")
+# Random Trees
 predRM <- predict(model_RM, newdata = anesTS2012sub[!training_set,], type="response")
+# Add them into a matrix
 pred_matrix <- matrix(c(predOLS, predTobit, predRM), ncol = 3)
+# Add names to the matrix colums
+colnames(pred_matrix) <- c("OLS", "Tobit", "RM")
+
+# Generate the vector R with the naive predictions
+R <- sample(1:100, nrow(anesTS2012sub[!training_set,]), replace = TRUE)
+
+# Estimate the Fit Statistics 
+# It's going to return Warning messages because r is not specified, and Tobit's
+# predictions vector contains values less than zero.
+FitStats(P = pred_matrix, y = anesTS2012sub[!training_set,"obamather"],
+              statistics = c("rmse", "mad", "mape", "meape", "rmsle", "mrae"))
+# It's going to return Warning messages because Tobit's 
+# predictions vector contains values less than zero.
+FitStats(P = pred_matrix, y = anesTS2012sub[!training_set,"obamather"],
+              statistics = c("rmse", "mad", "mape", "meape", "rmsle"))
+# It calculates only MRAE
+FitStats(P = pred_matrix, y = anesTS2012sub[!training_set,"obamather"],
+              r = R, statistics = c("mrae"))
+# We can observe that the models have similar fit statistics. However,
+# the random forest model is the one that has the lowest statistics, except by 
+# MAPE (Tobit is the one with the lowest value for this statistic). Moreover,
+# we also have that Tobit produces some negative predicted values and, therefore,
+# the RMSLE is not possible to be calculated to this model.
+

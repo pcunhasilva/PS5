@@ -21,7 +21,7 @@ if(!dir.exists("FitStatisticsPack")){
 # Add the function into R file.
 file.copy(from = "PS5_CreateFunction.R" , to = "FitStatisticsPack/R/") 
 # Rename the function file.
-file.rename(from = "FitStatisticsPack/R/PS5_CreateFunction.R", to = "FitStatisticsPack/R/FitStatistics.R")
+file.rename(from = "FitStatisticsPack/R/PS5_CreateFunction.R", to = "FitStatisticsPack/R/FitStats.R")
 
 # Package the code with the new DESCRIPTION file
 current.code <- as.package("FitStatisticsPack")
@@ -51,6 +51,6 @@ check(current.code)
 build("FitStatisticsPack", path = getwd())
 
 # Install the package
-install("FitStatisticsPack")
+install("FitStatisticsPack", reload = TRUE)
 
 

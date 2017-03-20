@@ -16,11 +16,11 @@
 #' Y <- 4 + 3 * x + rnorm(100)
 #' P <- matrix(predict(lm(Y ~ x)), ncol = 1)
 #' r <- sample(min(Y):max(Y), 100, replace = TRUE)
-#' FitStatistics(y = Y, P = P, r = r)
-#' @rdname FitStatistics
+#' FitStats(y = Y, P = P, r = r)
+#' @rdname FitStats
 #' @import stats
 #' @export
-FitStatistics <- function(y, P, r = NULL, 
+FitStats <- function(y, P, r = NULL, 
                           statistics = c("rmse", "mad", "mape", "meape", "rmsle", "mrae")){
    # If y=0, it adds a small number to not generate Inf in the next 
    #  in the next steps.

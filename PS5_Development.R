@@ -37,9 +37,39 @@ descriptionfile[1, 4] <- "person(\"Patrick\", \"C. Silva\", email = \"pcunhasilv
 descriptionfile[1, 5] <- "Calculates fit statistics for statistical models."
 descriptionfile[1, 6] <- c("\nR (>= 3.3.2), \n stats")
 descriptionfile[1, 7] <- "GPL (>= 2)"
+# Add the file "Imports" to DESCRIPTION FILE.
+Imports <- "testthat"
+descriptionfile <- cbind(descriptionfile, Imports)
 
 # Save the new version of the  DESCRIPTION FILE
 write.dcf(descriptionfile, "FitStatisticsPack/DESCRIPTION")
+
+# Generate tests folder
+if(!dir.exists("FitStatisticsPack/tests/")){
+   dir.create("FitStatisticsPack/tests/")
+}
+
+# Generate testthat folder
+if(!dir.exists("FitStatisticsPack/tests/testthat")){
+   dir.create("FitStatisticsPack/tests/testthat")
+}
+
+# Add testall to test folder
+file.copy(from = "PS5_test_all.R" , to = "FitStatisticsPack/tests/") 
+
+# Rename testall file.
+file.rename(from = "FitStatisticsPack/tests/PS5_test_all.R", 
+            to = "FitStatisticsPack/tests/test-all.R")
+
+# Add tests into testthat folder
+file.copy(from = "PS5_test_class.R", to = "FitStatisticsPack/tests/testthat")
+file.copy(from = "PS5_test_error_Pclass.R", to = "FitStatisticsPack/tests/testthat")
+
+# Rename files 
+file.rename(from = "FitStatisticsPack/tests/testthat/PS5_test_class.R", 
+            to = "FitStatisticsPack/tests/testthat/test_class.R")
+file.rename(from = "FitStatisticsPack/tests/testthat/PS5_test_error_Pclass.R", 
+            to = "FitStatisticsPack/tests/testthat/test_Pclass.R")
 
 # Package (Again) the code with the new DESCRIPTION file
 current.code <- as.package("FitStatisticsPack")
